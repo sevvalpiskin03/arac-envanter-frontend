@@ -1,56 +1,19 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { LogoutButton } from "@/components/auth/logout-button";
-import { getBackendUrl } from "@/lib/backend";
+import { ArrowRight, CarFront, CircleAlert, Plus, Wrench } from "lucide-react";
+import Link from "next/link";
 
-interface AdminProfile {
-  id: string;
-  name: string;
-  email: string;
-}
-
-async function getAdminProfile(token: string): Promise<AdminProfile | null> {
-  try {
-    const response = await fetch(getBackendUrl("auth/me"), {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
-    });
-
-    if (!response.ok) return null;
-    return (await response.json()) as AdminProfile;
-  } catch {
-    return null;
-  }
-}
-
-export default async function DashboardPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("vehicle_admin_token")?.value;
-
-  if (!token) redirect("/");
-
-  const admin = await getAdminProfile(token);
-  if (!admin) redirect("/api/auth/logout?redirect=/");
-
+export default function DashboardPage() {
   return (
-    <main className="dashboard-page">
-      <div className="dashboard-shell">
-        <header className="dashboard-header">
-          <div>
-            <h1>Filo Yönetimi</h1>
-            <p>{admin.email}</p>
-          </div>
-          <LogoutButton />
-        </header>
-        <section className="welcome-card">
-          <span>Authentication tamamlandı</span>
-          <h2>Hoş geldiniz, {admin.name}</h2>
-          <p>
-            Frontend ve backend güvenli şekilde haberleşiyor. Araç envanteri
-            özelliklerine geçmeden önce bu temel akışı birlikte doğrulayacağız.
-          </p>
-        </section>
-      </div>
-    </main>
+    <div className="dashboard-view">
+      <header className="page-header">
+        <div><span className="eyebrow">Filo yönetimi</span><h1>Kontrol Paneli</h1><p>Filonuzun güncel durumuna hızlıca göz atın.</p></div>
+        <Link className="primary-action" href="/dashboard/vehicles"><Plus /> Yeni Araç Ekle</Link>
+      </header>
+      <section className="summary-grid">
+        <article className="summary-card"><span className="summary-icon"><CarFront /></span><small>Envanter</small><strong>Araç kayıtları hazır</strong><Link href="/dashboard/vehicles">Envanteri aç <ArrowRight /></Link></article>
+        <article className="summary-card"><span className="summary-icon warm"><Wrench /></span><small>Sıradaki özellik</small><strong>Bakım ve tamir</strong><p>Araç envanterinden sonra eklenecek.</p></article>
+        <article className="summary-card"><span className="summary-icon danger"><CircleAlert /></span><small>Bakım uyarıları</small><strong>Kilometre bazlı</strong><p>Yaklaşan bakımlar otomatik hesaplanır.</p></article>
+      </section>
+      <section className="dashboard-banner"><div><span>ARAÇ ENVANTERİ</span><h2>İlk feature kullanıma hazır.</h2><p>Araçları görüntüleyin, filtreleyin ve yeni araç ekleyin.</p></div><Link href="/dashboard/vehicles">Araç Envanterine Git <ArrowRight /></Link></section>
+    </div>
   );
 }
