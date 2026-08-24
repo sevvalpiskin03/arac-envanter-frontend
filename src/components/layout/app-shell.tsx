@@ -18,7 +18,7 @@ const navigation = [
   { href: "/dashboard", label: "Kontrol Paneli", icon: LayoutDashboard },
   { href: "/dashboard/vehicles", label: "Araç Envanteri", icon: CarFront },
   { href: "/dashboard/service-records", label: "Bakım ve Tamir", icon: Wrench },
-  { href: "#", label: "Bakım Uyarıları", icon: Bell, disabled: true },
+  { href: "/dashboard/maintenance-alerts", label: "Bakım Uyarıları", icon: Bell },
   { href: "#", label: "Raporlar", icon: FileSpreadsheet, disabled: true },
   { href: "#", label: "Şirket ve Birimler", icon: Building2, disabled: true },
 ];
