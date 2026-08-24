@@ -609,3 +609,37 @@ a {
   .vehicle-form-grid { grid-template-columns: 1fr; }
   .full-field { grid-column: auto; }
 }
+
+/* Service and repair records */
+.service-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+.service-summary-card { display:grid; grid-template-columns:42px 1fr; column-gap:12px; align-items:center; padding:16px; border:1px solid var(--line); border-radius:15px; background:var(--surface); }
+.service-summary-card .summary-icon { grid-row:1 / 3; margin:0; }
+.service-summary-card .summary-icon.green { background:#e7f6ee; color:var(--success); }
+.service-summary-card .summary-icon.orange { background:#fff1df; color:#a85610; }
+.service-summary-card small { color:var(--muted); font-size:10px; text-transform:uppercase; }
+.service-summary-card strong { margin-top:3px; font-size:17px; }
+.service-filters { padding-top:18px; }
+.filter-select input { height:38px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--surface-soft); color:var(--ink); font-size:12px; }
+.service-record-list { display:grid; gap:12px; padding:0 20px 8px; }
+.service-record-card { overflow:hidden; padding:17px; border:1px solid var(--line); border-top:3px solid var(--primary); border-radius:13px; background:#fcfefe; }
+.service-record-card.repair { border-top-color:#b55c10; }
+.record-top { display:flex; align-items:center; gap:9px; color:var(--muted); font-size:11px; }
+.record-top > strong { margin-left:auto; color:var(--ink); font-size:14px; }
+.record-type { padding:5px 8px; border-radius:999px; background:var(--primary-soft); color:var(--primary); font-size:10px; font-weight:750; }
+.record-type.repair { background:#fff1df; color:#a85610; }
+.record-vehicle { display:flex; justify-content:space-between; gap:12px; margin-top:13px; }
+.record-vehicle > div { display:flex; gap:8px; align-items:baseline; }
+.record-vehicle b { font-size:14px; }
+.record-vehicle span { color:var(--muted); font-size:11px; }
+.service-record-card h3 { margin:12px 0 6px; font-size:13px; }
+.service-record-card p { margin:0; color:var(--muted); font-size:11px; }
+.service-record-card footer { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; padding-top:11px; border-top:1px solid var(--line); }
+.service-record-card footer span { padding:4px 7px; border-radius:7px; background:var(--surface-soft); color:var(--muted); font-size:9px; }
+.part-list { display:grid; gap:8px; }
+.part-list > div { display:flex; gap:7px; }
+.part-list input { flex:1; height:40px; padding:0 11px; border:1px solid var(--line); border-radius:10px; background:var(--surface-soft); }
+.part-list > div button { width:40px; border:0; border-radius:10px; color:var(--danger); cursor:pointer; }
+.part-list svg { width:15px; }
+.add-part { justify-self:start; display:flex; align-items:center; gap:6px; padding:8px 10px; border:0; border-radius:9px; background:var(--primary-soft); color:var(--primary); font-size:11px; font-weight:700; cursor:pointer; }
+@media(max-width:980px){.service-summary{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:520px){.service-summary{grid-template-columns:1fr 1fr;gap:8px}.service-summary-card{grid-template-columns:34px 1fr;padding:12px;column-gap:8px}.service-summary-card .summary-icon{width:34px;height:34px}.service-summary-card strong{font-size:13px}.service-record-list{padding-inline:12px}.record-vehicle{display:grid}.record-top time{display:none}}
