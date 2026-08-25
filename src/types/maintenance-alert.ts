@@ -7,6 +7,6 @@ export interface MaintenanceAlert {
 export interface NotificationSettings { id: string; warningMileageThreshold: number; emailEnabled: boolean; recipientEmails: string[] }
 export interface MaintenanceAlertResponse {
   data: MaintenanceAlert[];
+  allMaintenance: MaintenanceAlert[];
   summary: { total: number; approaching: number; overdue: number };
-  settings: NotificationSettings;
 }
