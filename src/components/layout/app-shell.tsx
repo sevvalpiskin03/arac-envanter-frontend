@@ -20,7 +20,7 @@ const navigation = [
   { href: "/dashboard/service-records", label: "Bakım ve Tamir", icon: Wrench },
   { href: "/dashboard/maintenance-alerts", label: "Bakım Uyarıları", icon: Bell },
   { href: "/dashboard/reports", label: "Raporlar", icon: FileSpreadsheet },
-  { href: "#", label: "Şirket ve Birimler", icon: Building2, disabled: true },
+  { href: "/dashboard/organization", label: "Şirket ve Birimler", icon: Building2 },
 ];
 
 interface AppShellProps {
@@ -39,13 +39,9 @@ export function AppShell({ admin, children }: AppShellProps) {
           <span><strong>Filo Yönetimi</strong><small>Araç ve bakım takibi</small></span>
         </div>
         <nav className="app-navigation" aria-label="Ana menü">
-          {navigation.map(({ href, label, icon: Icon, disabled }) => {
+          {navigation.map(({ href, label, icon: Icon }) => {
             const active = href === "/dashboard" ? pathname === href : pathname.startsWith(href);
-            return disabled ? (
-              <span className="nav-item nav-disabled" key={label} aria-disabled="true">
-                <Icon aria-hidden="true" /> {label}<small>Yakında</small>
-              </span>
-            ) : (
+            return (
               <Link className={`nav-item ${active ? "nav-active" : ""}`} href={href} key={label}>
                 <Icon aria-hidden="true" /> {label}
               </Link>
@@ -61,14 +57,10 @@ export function AppShell({ admin, children }: AppShellProps) {
       </aside>
       <main className="app-content">{children}</main>
       <nav className="mobile-navigation" aria-label="Mobil ana menü">
-        {navigation.slice(0, 3).map(({ href, label, icon: Icon, disabled }) =>
-          disabled ? (
-            <span className="mobile-nav-item nav-disabled" key={label}><Icon /><small>{label}</small></span>
-          ) : (
+        {navigation.slice(0, 3).map(({ href, label, icon: Icon }) =>
             <Link className={`mobile-nav-item ${pathname === href ? "nav-active" : ""}`} href={href} key={label}>
               <Icon /><small>{label}</small>
-            </Link>
-          ),
+            </Link>,
         )}
       </nav>
     </div>
