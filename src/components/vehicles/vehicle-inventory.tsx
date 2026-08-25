@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import type { Company, MaintenanceStatus, Unit, VehicleListResponse } from "@/types/vehicle";
+import type { Company, MaintenanceStatus, Unit, Vehicle, VehicleListResponse } from "@/types/vehicle";
 
 const emptyList: VehicleListResponse = {
   data: [],
@@ -39,6 +39,7 @@ export function VehicleInventory() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
   useEffect(() => {
     fetch("/api/companies").then((res) => res.json()).then((data: Company[]) => setCompanies(data));
@@ -105,7 +106,7 @@ export function VehicleInventory() {
               <table className="vehicle-table">
                 <thead><tr><th>Plaka / Araç</th><th>Şirket</th><th>Kullanan birim</th><th>HGS</th><th>Kilometre</th><th>Bakım durumu</th></tr></thead>
                 <tbody>{vehicles.data.map((vehicle) => (
-                  <tr key={vehicle.id}>
+                  <tr key={vehicle.id} onClick={() => setSelectedVehicle(vehicle)}>
                     <td><strong>{vehicle.plate}</strong><small>{vehicle.brand} {vehicle.model} · {vehicle.modelYear}</small></td>
                     <td>{vehicle.company.name}</td><td>{vehicle.unit.name}</td>
                     <td><span className={`hgs-badge ${vehicle.hasHgs ? "yes" : "no"}`}>{vehicle.hasHgs ? "Var" : "Yok"}</span></td>
@@ -116,7 +117,7 @@ export function VehicleInventory() {
               </table>
             </div>
             <div className="vehicle-card-list">{vehicles.data.map((vehicle) => (
-              <article className="vehicle-mobile-card" key={vehicle.id}>
+              <article className="vehicle-mobile-card" key={vehicle.id} onClick={() => setSelectedVehicle(vehicle)}>
                 <div className="vehicle-card-head"><span className="vehicle-card-icon"><CarFront /></span><div><strong>{vehicle.plate}</strong><small>{vehicle.brand} {vehicle.model}</small></div><MaintenanceBadge status={vehicle.maintenanceStatus} remaining={vehicle.remainingMaintenanceMileage} compact /></div>
                 <div className="vehicle-card-facts"><span><Building2 />{vehicle.company.name}</span><span><Gauge />{vehicle.currentMileage.toLocaleString("tr-TR")} km</span></div>
               </article>
@@ -129,9 +130,13 @@ export function VehicleInventory() {
       </section>
 
       {modalOpen ? <VehicleModal companies={companies} onClose={() => setModalOpen(false)} onCreated={() => { setModalOpen(false); setRefreshKey((value) => value + 1); }} /> : null}
+      {selectedVehicle ? <VehicleDetail vehicle={selectedVehicle} onClose={() => setSelectedVehicle(null)} /> : null}
     </div>
   );
 }
+
+function VehicleDetail({vehicle,onClose}:{vehicle:Vehicle;onClose:()=>void}){return <div className="modal-backdrop" role="dialog" aria-modal="true"><section className="detail-modal"><header><div><span className="eyebrow">Araç detayı</span><h2>{vehicle.plate}</h2><p>{vehicle.brand} {vehicle.model} · {vehicle.modelYear}</p></div><button onClick={onClose}><X/></button></header><div className="detail-grid"><VehicleFact label="Araç türü" value={vehicle.vehicleType}/><VehicleFact label="Güncel kilometre" value={`${vehicle.currentMileage.toLocaleString("tr-TR")} km`}/><VehicleFact label="Ruhsat sahibi türü" value={vehicle.ownerType==="PERSON"?"Kişi":"Şirket"}/><VehicleFact label="Ruhsat / şirket sahibi" value={vehicle.registeredOwner}/><VehicleFact label="Bağlı şirket" value={vehicle.company.name}/><VehicleFact label="Kullanan birim" value={vehicle.unit.name}/><VehicleFact label="HGS durumu" value={vehicle.hasHgs?"Var":"Yok"}/><VehicleFact label="Son bakım kilometresi" value={vehicle.lastMaintenanceMileage?`${vehicle.lastMaintenanceMileage.toLocaleString("tr-TR")} km`:"Belirtilmedi"}/><VehicleFact label="Sonraki bakım kilometresi" value={vehicle.nextMaintenanceMileage?`${vehicle.nextMaintenanceMileage.toLocaleString("tr-TR")} km`:"Planlanmadı"}/><VehicleFact label="Bakım durumu" value={statusLabels[vehicle.maintenanceStatus]}/></div>{vehicle.note?<section><h3>Not</h3><p>{vehicle.note}</p></section>:null}</section></div>}
+function VehicleFact({label,value}:{label:string;value:string}){return <div><small>{label}</small><strong>{value}</strong></div>}
 
 function FilterSelect({ label, value, onChange, options, disabled }: { label: string; value: string; onChange: (value: string) => void; options: { value: string; label: string }[]; disabled?: boolean }) {
   return <label className="filter-select"><span>{label}</span><select value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)}><option value="">Tümü</option>{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>;

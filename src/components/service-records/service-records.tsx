@@ -2,7 +2,7 @@
 
 import { CalendarDays, ChevronLeft, ChevronRight, CircleDollarSign, Plus, Wrench, X } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import type { ServiceRecordListResponse, ServiceType } from "@/types/service-record";
+import type { ServiceRecord, ServiceRecordListResponse, ServiceType } from "@/types/service-record";
 import type { Company, Unit, Vehicle, VehicleListResponse } from "@/types/vehicle";
 
 const emptyList: ServiceRecordListResponse = {
@@ -21,6 +21,7 @@ export function ServiceRecords() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedRecord, setSelectedRecord] = useState<ServiceRecord | null>(null);
 
   useEffect(() => { void fetch("/api/companies").then((r) => r.json()).then(setCompanies); }, []);
   const load = useCallback(async () => {
@@ -63,19 +64,21 @@ export function ServiceRecords() {
       </div>
       <div className="inventory-title-row"><div><h2>Tüm kayıtlar</h2><p>Son eklenen işlemler</p></div><span>{loading ? "Yükleniyor…" : `${records.pagination.total} kayıt`}</span></div>
       {records.data.length ? <>
-        <div className="service-record-list">{records.data.map((record) => <article className={`service-record-card ${record.type.toLowerCase()}`} key={record.id}>
+        <div className="service-record-list">{records.data.map((record) => <article className={`service-record-card compact ${record.type.toLowerCase()}`} key={record.id} onClick={() => setSelectedRecord(record)} tabIndex={0} role="button">
           <div className="record-top"><span className={`record-type ${record.type.toLowerCase()}`}>{record.type === "MAINTENANCE" ? "Bakım" : "Tamir"}</span><time>{new Date(record.serviceDate).toLocaleDateString("tr-TR")}</time><strong>{formatMoney(record.totalCost)}</strong></div>
           <div className="record-vehicle"><div><b>{record.vehicle.plate}</b><span>{record.vehicle.brand} {record.vehicle.model}</span></div><span>{record.mileageAtService.toLocaleString("tr-TR")} km</span></div>
-          <h3>{record.performedWork}</h3>
-          {record.replacedParts.length ? <p><b>Değişen parçalar:</b> {record.replacedParts.map((p) => p.name).join(", ")}</p> : null}
-          <footer><span>{record.vehicle.company.name}</span><span>{record.vehicle.unit.name}</span>{record.provider ? <span>{record.provider}</span> : null}</footer>
+          <h3>{record.performedWork}</h3><small className="open-detail-hint">Detayları görmek için tıklayın</small>
         </article>)}</div>
         <div className="pagination"><span>{page} / {records.pagination.totalPages} sayfa</span><div><button disabled={page <= 1} onClick={() => setPage((p) => p - 1)}><ChevronLeft /></button><button disabled={page >= records.pagination.totalPages} onClick={() => setPage((p) => p + 1)}><ChevronRight /></button></div></div>
       </> : <div className="empty-state"><span><Wrench /></span><h3>{loading ? "Kayıtlar yükleniyor" : "Henüz kayıt yok"}</h3><p>İlk bakım veya tamir kaydını ekleyebilirsiniz.</p></div>}
     </section>
     {modalOpen ? <ServiceRecordModal onClose={() => setModalOpen(false)} onCreated={() => { setModalOpen(false); setRefreshKey((k) => k + 1); }} /> : null}
+    {selectedRecord ? <ServiceRecordDetail record={selectedRecord} onClose={() => setSelectedRecord(null)} /> : null}
   </div>;
 }
+
+function ServiceRecordDetail({record,onClose}:{record:ServiceRecord;onClose:()=>void}){return <div className="modal-backdrop" role="dialog" aria-modal="true"><section className="detail-modal"><header><div><span className={`record-type ${record.type.toLowerCase()}`}>{record.type==="MAINTENANCE"?"Bakım":"Tamir"}</span><h2>{record.vehicle.plate}</h2><p>{record.vehicle.brand} {record.vehicle.model}</p></div><button onClick={onClose}><X/></button></header><div className="detail-grid"><Detail label="İşlem tarihi" value={new Date(record.serviceDate).toLocaleDateString("tr-TR")}/><Detail label="İşlem kilometresi" value={`${record.mileageAtService.toLocaleString("tr-TR")} km`}/><Detail label="Şirket" value={record.vehicle.company.name}/><Detail label="Kullanan birim" value={record.vehicle.unit.name}/><Detail label="Servis / Usta" value={record.provider??"Belirtilmedi"}/><Detail label="Toplam maliyet" value={formatMoney(record.totalCost)}/><Detail label="Sonraki bakım" value={record.nextMaintenanceMileage?`${record.nextMaintenanceMileage.toLocaleString("tr-TR")} km`:"Planlanmadı"}/></div><section><h3>Yapılan işlemler</h3><p>{record.performedWork}</p></section><section><h3>Değişen parçalar</h3>{record.replacedParts.length?<div className="detail-tags">{record.replacedParts.map((p)=><span key={p.id}>{p.name}</span>)}</div>:<p>Değişen parça kaydedilmedi.</p>}</section>{record.note?<section><h3>Not</h3><p>{record.note}</p></section>:null}</section></div>}
+function Detail({label,value}:{label:string;value:string}){return <div><small>{label}</small><strong>{value}</strong></div>}
 
 function Summary({ label, value, icon, accent = "blue" }: { label:string; value:string; icon:React.ReactNode; accent?:string }) {
   return <article className="service-summary-card"><span className={`summary-icon ${accent}`}>{icon}</span><small>{label}</small><strong>{value}</strong></article>;
